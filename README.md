@@ -5,3 +5,5 @@ This repository is designed to contain and provide helpful information about var
 
 
 * [Post-processing flow](https://github.com/base64ai/docs/wiki/Post%E2%80%90processing-flow)
+
+* [Auto ML](https://github.com/base64ai/docs/wiki/Base64.ai-Auto-ML)
