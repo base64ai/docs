@@ -1,0 +1,829 @@
+version: "3.8"
+
+# ============================================================================
+# INTEGRATE (n8n) ENVIRONMENT VARIABLES
+# ============================================================================
+x-common-integrate-environment: &common-integrate-environment
+  # n8n logging level (debug, info, warn, error)
+  N8N_LOG_LEVEL: debug
+  # Enforce file permissions for settings
+  N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+  # Disable secure cookies (set to true for HTTPS)
+  N8N_SECURE_COOKIE: false
+  # Database type for n8n
+  DB_TYPE: postgresdb
+  # PostgreSQL host for n8n database
+  DB_POSTGRESDB_HOST: postgres
+  # PostgreSQL database name for n8n
+  DB_POSTGRESDB_DATABASE: n8n
+  # PostgreSQL username for n8n
+  DB_POSTGRESDB_USER: <example_n8n_user>
+  # PostgreSQL password for n8n
+  DB_POSTGRESDB_PASSWORD: <example_n8n_password>
+  # PostgreSQL port for n8n
+  DB_POSTGRESDB_PORT: 5432
+  # Base64.ai API server URL for n8n integrations
+  BASE64AI_ON_PREMISES_HOST: http://<example_hostname>
+  # n8n templates host URL
+  N8N_TEMPLATES_HOST: http://<example_hostname>/api/n8n
+  # External hostname for n8n
+  N8N_HOST: integrate.<example_hostname>
+  # Protocol for n8n (http or https)
+  N8N_PROTOCOL: http
+  # Port for n8n web interface
+  N8N_PORT: 5678
+  # Encryption key for n8n (UUID format)
+  N8N_ENCRYPTION_KEY: <example_uuid_encryption_key>
+  # Override for n8n encryption key
+  ENCRYPTION_KEY_ENV_OVERWRITE: <example_uuid_encryption_key>
+  # Admin API key for the integration server
+  BASE64AI_INTEGRATE_ADMIN_KEY: <example_admin_key>
+  # Admin account email for n8n
+  BASE64AI_ADMIN_ACCOUNT: <example_admin@example.com>
+  # Admin account password for n8n
+  BASE64AI_ADMIN_ACCOUNT_PASSWORD: <example_admin_password>
+  # Save execution data on success (none, all)
+  EXECUTIONS_DATA_SAVE_ON_SUCCESS: none
+  # Save execution data on error (none, all)
+  EXECUTIONS_DATA_SAVE_ON_ERROR: all
+  # Save manual execution data
+  EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS: true
+  # Maximum payload size in MB
+  N8N_PAYLOAD_SIZE_MAX: 30
+  # Email mode for n8n notifications
+  N8N_EMAIL_MODE: smtp
+  # Disable n8n diagnostics/telemetry
+  N8N_DIAGNOSTICS_ENABLED: false
+  # Execution mode (queue for scalability)
+  EXECUTIONS_MODE: queue
+  # Redis host for n8n queue
+  QUEUE_BULL_REDIS_HOST: redis
+  # Redis port for n8n queue
+  QUEUE_BULL_REDIS_PORT: 6379
+  # Enable queue health check
+  QUEUE_HEALTH_CHECK_ACTIVE: true
+  # Port for queue health check
+  QUEUE_HEALTH_CHECK_PORT: 80
+  # Nodes to exclude for security (file system, command execution)
+  NODES_EXCLUDE: '["n8n-nodes-base.localFileTrigger","n8n-nodes-base.readBinaryFile","n8n-nodes-base.writeBinaryFile","n8n-nodes-base.editImage","n8n-nodes-base.executeCommand","n8n-nodes-base.ssh"]'
+
+# ============================================================================
+# DOCUMENT INTELLIGENCE (DI) SERVICES ENVIRONMENT VARIABLES
+# Applies to: sparrow, toucan, tomcat, seagull, pelican, kiwi, heron, abbot
+# ============================================================================
+x-common-cv-environment: &common-cv-environment
+  expose:
+    - 3000
+  networks:
+    - base64ai_network
+  environment:
+    # Port for the ML service (default: 3000)
+    PORT: 3000
+    # Subscription key for ML cluster authentication (UUID format)
+    SUBSCRIPTION_KEY: <example_subscription_key_uuid>
+    # URL of the API server for callbacks and health checks
+    API_HOST: http://<example_hostname>
+
+# ============================================================================
+# DOCUMENT INTELLIGENCE (DI) SERVICES ENVIRONMENT VARIABLES
+# Applies to: hawk, vulture, lark, parrot, crow
+# ============================================================================
+x-common-di-environment: &common-di-environment
+  # Logging level for the microservice (Information, Debug, Warning, Error)
+  LOGGING_LEVEL: Information
+  # Log output format (json or text)
+  LOGGING_FORMAT: json
+  # File path for log output
+  LOGGING_OUTPUT_PATH: /var/log
+  # Subscription key for service authentication
+  SUBSCRIPTION_KEY: <example_subscription_key>
+
+# ============================================================================
+# PERSISTENT VOLUMES
+# Named volumes for data persistence across container restarts
+# ============================================================================
+volumes:
+  # API service data (file storage, cluster state)
+  base64ai_ultimate_api2:
+  # n8n integration service data
+  base64ai_ultimate_integrate2:
+  # Centralized log output from DI services
+  base64ai_ultimate_log_output:
+  # LLM model cache and data
+  base64ai_ultimate_llm:
+  # Redis data persistence
+  base64ai_ultimate_redis:
+  # PostgreSQL data for n8n
+  base64ai_ultimate_postgres:
+  # PostgreSQL data for Base64.ai API
+  base64ai_ultimate_postgres_api:
+  # Elasticsearch indices and data
+  base64ai_ultimate_elasticsearch:
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  # Internal network for service-to-service communication
+  base64ai_network:
+    driver: bridge
+
+# ============================================================================
+# SERVICES
+# ============================================================================
+services:
+  # ==========================================================================
+  # API - Main Base64.ai Application Server
+  # Core API service handling document processing requests
+  # ==========================================================================
+  api:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/api:11.2.0
+    ports:
+      - 3000
+      - 3001
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_api2:/cluster
+      - ./:/vault_folder
+    healthcheck:
+      test: curl -f http://localhost:3000/api/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    environment:
+      # ========================================================================
+      # SERVER CONFIGURATION
+      # ========================================================================
+      # The port number on which the API server listens
+      - PORT=3000
+      # Disable SMTP server feature (set to 0 to enable)
+      - SMTP_SERVER_DISABLED=1
+      # HTTP proxy URL for outgoing requests (optional)
+      # - HTTP_PROXY=http://<proxy_host>:<proxy_port>
+      
+      # ========================================================================
+      # ML SERVICES CONFIGURATION
+      # URLs for connecting to ML microservices
+      # ========================================================================
+      # URL of the Hawk server for document processing
+      - BASE64AI_HAWK_SERVER=http://hawk:5000
+      # URL of the task queue server (Pheasant) for async processing
+      - BASE64AI_TASK_QUEUE_SERVER=http://pheasant:3000
+      # URL of the Kiwi server
+      - BASE64AI_KIWI_SERVER=http://kiwi:3000
+      # URL of the Lark server
+      - BASE64AI_LARK_SERVER=http://lark:5050
+      # URL of the Parrot server
+      - BASE64AI_PARROT_SERVER=http://parrot:5050
+      # URL of the Crow ML server
+      - BASE64AI_CROW_SERVER=http://crow:5050
+      # URL of the Seagull server
+      - BASE64AI_SEAGULL_SERVER=http://seagull:3000
+      # URL of the Sparrow server
+      - BASE64AI_SPARROW_SERVER=http://sparrow:3000
+      # URL of the Tomcat server
+      - BASE64AI_TOMCAT_SERVER=http://tomcat:3000
+      # URL of the Toucan server
+      - BASE64AI_TOUCAN_SERVER=http://toucan:3000
+      # URL of the Abbot server
+      - BASE64AI_ABBOT_SERVER=http://abbot:3000
+      # URL of the Heron server
+      - BASE64AI_HERON_SERVER=http://heron:3000
+      # URL of the Pelican server
+      - BASE64AI_PELICAN_SERVER=http://pelican:3000
+      # URL of the Vulture server for image processing
+      - BASE64AI_VULTURE_SERVER=http://vulture:5000
+      # URL of the Merlin LLM server (can be external IP for GPU server)
+      - BASE64AI_MERLIN_SERVER=http://merlin:8000
+      
+      # ========================================================================
+      # LLM CONFIGURATION
+      # ========================================================================
+      # Enable embedding server for vector search features
+      - EMBEDDING_SERVER_ENABLED=true
+      # URL of the MCP (Model Context Protocol) server
+      - BASE64AI_MCP_SERVER=http://mcp.<example_hostname>
+      # LLM model provider to use (local, mock)
+      - LLM_MODEL=local
+      
+      # ========================================================================
+      # ELASTICSEARCH CONFIGURATION
+      # ========================================================================
+      # URL of the Elasticsearch node
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      # Username for Elasticsearch basic authentication
+      - ELASTICSEARCH_USERNAME=elastic
+      # Password for Elasticsearch basic authentication
+      - ELASTICSEARCH_PASSWORD=<example_elastic_password>
+      
+      # ========================================================================
+      # BRANDING
+      # ========================================================================
+      # Display title for on-premises deployment
+      - ON_PREM_TITLE=<Example Document AI>
+      
+      # ========================================================================
+      # DATABASE CONFIGURATION
+      # ========================================================================
+      # Disable database operation logging
+      - DISABLE_DATABASE_LOGS=true
+      # Enable SQL database server for on-premises deployments
+      - DATABASE_SERVER_ENABLED=1
+      # Type of SQL database to use (sqlite, postgres, mssql)
+      - DATABASE_SERVER_FLAVOR=postgres
+      # Hostname of the SQL database server
+      - DATABASE_SERVER_HOST=postgres-api
+      # Port number of the SQL database server
+      - DATABASE_SERVER_PORT=5432
+      # Name of the SQL database
+      - DATABASE_SERVER_NAME=base64api
+      # Username for SQL database authentication
+      - DATABASE_SERVER_USER=<example_db_user>
+      # Password for SQL database authentication
+      - DATABASE_SERVER_PASS=<example_db_password>
+      # Schema name for PostgreSQL database
+      - DATABASE_SERVER_SCHEMA=base64api
+      
+      # ========================================================================
+      # ADMIN USER CONFIGURATION (On-Premises)
+      # ========================================================================
+      # First name for the admin user
+      - BASE64AI_ADMIN_GIVEN_NAME=<Example_FirstName>
+      # Last name for the admin user
+      - BASE64AI_ADMIN_FAMILY_NAME=<Example_LastName>
+      # Email address for the admin user
+      - BASE64AI_ADMIN_EMAIL=<example_admin@example.com>
+      # Password for the admin user
+      - BASE64AI_ADMIN_PASSWORD=<example_admin_password>
+      # Create admin user on startup (set to true for initial setup)
+      - BASE64AI_CREATE_ADMIN_USER=true
+      
+      # ========================================================================
+      # STORAGE CONFIGURATION
+      # ========================================================================
+      # Local file system path for document storage
+      - FILE_STORAGE_PATH=/cluster/fs
+      
+      # ========================================================================
+      # SECURITY CONFIGURATION
+      # ========================================================================
+      # Encryption key for sensitive data (32-byte hex or UUID)
+      - ENCRYPTION_KEY=<example_encryption_key_uuid>
+      # Subscription key for ML cluster authentication (UUID format)
+      - SUBSCRIPTION_KEY=<example_subscription_key_uuid>
+      
+      # ========================================================================
+      # HOST AND PROTOCOL CONFIGURATION
+      # ========================================================================
+      # The hostname for the Base64.ai server (external access)
+      - BASE64AI_HOST_NAME=<example_hostname>
+      # Domain for session cookies
+      - BASE64AI_COOKIE_DOMAIN=<example_domain>
+      # Protocol for the Base64.ai server (http or https)
+      - BASE64AI_PROTOCOL=http
+      
+      # ========================================================================
+      # INTEGRATION SERVER (n8n) CONFIGURATION
+      # ========================================================================
+      # Internal URL of the n8n integration server
+      - INTEGRATE_INTERNAL_HOST_NAME=http://integrate:5678
+      # External URL of the n8n integration server
+      - INTEGRATE_EXTERNAL_HOST_NAME=http://integrate.<example_hostname>
+      # Admin API key for the integration server
+      - BASE64AI_INTEGRATE_ADMIN_KEY=<example_integrate_admin_key>
+      # Admin account email for the integration server
+      - INTEGRATE_ADMIN_ACCOUNT=<example_admin@example.com>
+      # Admin account password for the integration server
+      - BASE64AI_INTEGRATE_ADMIN_ACCOUNT_PASSWORD=<example_integrate_password>
+    links:
+      - hawk
+      - integrate
+      - vulture
+      - merlin
+      - sparrow
+      - toucan
+      - tomcat
+      - abbot
+      - kiwi
+      - pelican
+      - seagull
+      - heron
+      - lark
+      - parrot
+      - crow
+      - pheasant
+      - elasticsearch
+      - postgres-api
+    depends_on:
+      integrate:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      postgres-api:
+        condition: service_healthy
+  # ==========================================================================
+  # MERLIN - LLM Service (GPU Required)
+  # This service should be deployed on a GPU instance for optimal performance
+  # ==========================================================================
+  merlin:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/merlin:11.2.0
+    expose:
+      - 8000
+    ports:
+      - "80:8000"
+    networks:
+      - base64ai_network
+    volumes:
+      # Cache directory for model downloads
+      - /opt/vllm-cache:/opt/cache
+      # LLM mount directory for additional resources
+      - ./llm_mount:/opt/base64ai/llm_mount:rw
+      # Google Cloud key for model downloads (optional)
+      - ./google-key.json:/opt/keys/google-key.json:ro
+      # Custom CA certificate for HTTPS requests (optional)
+      - /path/to/ca.pem:/my-ca.pem
+    cap_add:
+      - SYS_RESOURCE
+    # GPU Configuration - requires NVIDIA GPU
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              # GPU device IDs to use (e.g., "0" for first GPU, "0,1" for multi-GPU)
+              device_ids: ["0"]
+              capabilities: [gpu]
+    environment:
+      # ========================================================================
+      # SERVER CONFIGURATION
+      # ========================================================================
+      # Port for the LLM service
+      - PORT=8000
+      
+      # ========================================================================
+      # LLM MODEL CONFIGURATION
+      # ========================================================================
+      # Context window size for LLM (max tokens). Larger values use more memory
+      - CTX_WINDOW=32000
+      # Context window size for embedding model
+      - EMBEDDING_CTX_WINDOW=4000
+      # Model name for GPU inference (e.g., nexus-L, nexus-M)
+      - GPU_MODEL_NAME=nexus-L
+      # Model name for GPU embedding model (e.g., flux-M)
+      - GPU_EMBEDDING_MODEL_NAME=flux-M
+      # Enable embeddings server alongside chat server (0=disabled, 1=enabled)
+      - USE_EMBEDDINGS=1
+      
+      # ========================================================================
+      # GPU MEMORY CONFIGURATION
+      # ========================================================================
+      # GPU memory utilization fraction (0.0-1.0). 0.95 uses 95% of GPU memory
+      - GPU_MEM=0.95
+      # Ratio of GPU memory allocated to chat vs embeddings (0.0-1.0)
+      # 0.7 allocates 70% to chat, 30% to embeddings
+      - CHAT_MEM_RATIO=0.7
+      
+      # ========================================================================
+      # SERVER AND SECURITY
+      # ========================================================================
+      # URL of the API server for callbacks and health checks
+      - API_HOST=http://<example_hostname>
+      # Subscription key for ML cluster authentication (UUID format)
+      - SUBSCRIPTION_KEY=<example_subscription_key_uuid>
+      
+      # ========================================================================
+      # TIMEOUT CONFIGURATION
+      # ========================================================================
+      # Hard timeout for LLM requests in seconds
+      - LLM_REQ_HARD_TIMEOUT_SECONDS=120
+      
+      # ========================================================================
+      # TLS/SSL CONFIGURATION (Optional)
+      # ========================================================================
+      # Override CA bundle path for HTTPS requests (for custom certificates)
+      - REQUESTS_CA_BUNDLE_OVERRIDE="/my-ca.pem"
+  # ==========================================================================
+  # COMPUTER VISION (CV) SERVICES
+  # ML models for document classification and data extraction
+  # All use common-cv-environment for shared configuration
+  # ==========================================================================
+  
+  # SPARROW - Document classification service
+  sparrow:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/sparrow:cpu.11.2.0
+    <<: *common-cv-environment
+  
+  # TOUCAN - OCR and text extraction service
+  toucan:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/toucan:cpu.11.2.0
+    <<: *common-cv-environment
+  
+  # TOMCAT - Table detection and extraction service
+  tomcat:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/tomcat:cpu.11.2.0
+    <<: *common-cv-environment
+  
+  # SEAGULL - Signature detection service
+  seagull:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/seagull:cpu.11.2.0
+    <<: *common-cv-environment
+  
+  # PELICAN - Form field detection service
+  pelican:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/pelican:cpu.11.2.0
+    <<: *common-cv-environment
+  
+  # KIWI - Key-value pair extraction service
+  kiwi:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/kiwi:cpu.11.2.0
+    <<: *common-cv-environment
+  
+  # HERON - Handwriting recognition service
+  heron:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/heron:cpu.11.2.0
+    <<: *common-cv-environment
+  
+  # ABBOT - Barcode/QR code detection service
+  abbot:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/abbot:cpu.11.2.0
+    <<: *common-cv-environment
+  # ==========================================================================
+  # PHEASANT - Task Queue Service
+  # Handles asynchronous task processing
+  # ==========================================================================
+  pheasant:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/pheasant:11.2.0
+    expose:
+      - 3000
+    networks:
+      - base64ai_network
+    depends_on:
+      - redis-queue
+    environment:
+      # Port for the task queue service
+      PORT: 3000
+      # Subscription key for ML cluster authentication (UUID format)
+      SUBSCRIPTION_KEY: <example_subscription_key_uuid>
+      # URL of the API server for callbacks
+      API_HOST: http://api:3001
+      # Redis connection URL for task queue
+      REDIS_URL: redis://redis-queue:6379
+  # ==========================================================================
+  # HAWK - Document Intelligence Service
+  # Primary document processing and classification service
+  # ==========================================================================
+  hawk:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/hawk:11.2.0
+    expose:
+      - 5000
+    ports:
+      - "5000:5000"
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_log_output:/var/log
+    environment:
+      # Uses common DI environment variables (LOGGING_LEVEL, LOGGING_FORMAT, etc.)
+      <<: *common-di-environment
+  # ==========================================================================
+  # VULTURE - Image Processing Service
+  # Handles image preprocessing and manipulation
+  # ==========================================================================
+  vulture:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/vulture:11.2.0
+    expose:
+      - 5000
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_log_output:/var/log
+    environment:
+      # Uses common DI environment variables (LOGGING_LEVEL, LOGGING_FORMAT, etc.)
+      <<: *common-di-environment
+  # ==========================================================================
+  # LARK - Document Processing Service
+  # Requires Vulture service for image processing
+  # ==========================================================================
+  lark:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/lark:11.2.0
+    expose:
+      - 5050
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_log_output:/var/log
+    links:
+      - vulture
+    environment:
+      # Uses common DI environment variables (LOGGING_LEVEL, LOGGING_FORMAT, etc.)
+      <<: *common-di-environment
+      # URL of the Vulture server for image processing
+      BASE64AI_VULTURE_SERVER: http://vulture:5000
+  # ==========================================================================
+  # PARROT - Document Processing Service
+  # Requires Vulture service for image processing
+  # ==========================================================================
+  parrot:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/parrot:11.2.0
+    expose:
+      - 5050
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_log_output:/var/log
+    links:
+      - vulture
+    environment:
+      # Uses common DI environment variables (LOGGING_LEVEL, LOGGING_FORMAT, etc.)
+      <<: *common-di-environment
+      # URL of the Vulture server for image processing
+      BASE64AI_VULTURE_SERVER: http://vulture:5000
+  # ==========================================================================
+  # CROW - Document Processing Service
+  # Requires Vulture service for image processing
+  # ==========================================================================
+  crow:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/crow:11.2.0
+    expose:
+      - 5050
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_log_output:/var/log
+    links:
+      - vulture
+    environment:
+      # Uses common DI environment variables (LOGGING_LEVEL, LOGGING_FORMAT, etc.)
+      <<: *common-di-environment
+      # URL of the Vulture server for image processing
+      BASE64AI_VULTURE_SERVER: http://vulture:5000
+  # ==========================================================================
+  # INTEGRATE - n8n Workflow Automation (Main Server)
+  # Provides workflow automation and integration capabilities
+  # ==========================================================================
+  integrate:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/integrate:11.2.0
+    ports:
+      - "5678:5678"
+    networks:
+      - base64ai_network
+    volumes:
+      # Persistent storage for n8n data
+      - base64ai_ultimate_integrate2:/home/base64ai
+      # Vault folder for secrets and configurations
+      - ./:/vault_folder
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://integrate:5678/healthz/readiness || exit 1
+      interval: 10s
+      timeout: 30s
+      retries: 5
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      # Uses common integrate environment variables
+      <<: *common-integrate-environment
+  
+  # ==========================================================================
+  # INTEGRATE WORKER - n8n Queue Worker
+  # Processes workflow executions in queue mode
+  # ==========================================================================
+  integrate-worker:
+    image: us-east1-docker.pkg.dev/base64ai-offline/ultimate/integrate:11.2.0
+    command: worker
+    networks:
+      - base64ai_network
+    volumes:
+      # Shared storage with main integrate service
+      - base64ai_ultimate_integrate2:/home/base64ai
+      # Vault folder for secrets and configurations
+      - ./:/vault_folder
+    depends_on:
+      - integrate
+    environment:
+      # Uses common integrate environment variables
+      <<: *common-integrate-environment
+
+  # ==========================================================================
+  # REDIS - Session and Cache Store
+  # Used by n8n for session management
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379"
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_redis:/data
+    # Enable append-only file for persistence
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+  
+  # ==========================================================================
+  # REDIS-QUEUE - Task Queue Store
+  # Used by Pheasant for async task processing
+  # ==========================================================================
+  redis-queue:
+    image: redis:7-alpine
+    ports:
+      - "6379"
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_redis:/data
+    # Enable append-only file for persistence
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+  
+  # ==========================================================================
+  # POSTGRES - n8n Database
+  # PostgreSQL database for n8n workflow storage
+  # ==========================================================================
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432"
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_postgres:/var/lib/postgresql/data
+    environment:
+      # Database name for n8n
+      POSTGRES_DB: n8n
+      # Username for n8n database
+      POSTGRES_USER: <example_n8n_user>
+      # Password for n8n database
+      POSTGRES_PASSWORD: <example_n8n_password>
+      # Data directory location
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U <example_n8n_user> -d n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  
+  # ==========================================================================
+  # POSTGRES-API - Base64.ai API Database
+  # PostgreSQL database for Base64.ai application data
+  # ==========================================================================
+  postgres-api:
+    image: postgres:15-alpine
+    ports:
+      - "5432"
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_postgres_api:/var/lib/postgresql/data
+    environment:
+      # Database name for Base64.ai API
+      POSTGRES_DB: base64api
+      # Username for API database
+      POSTGRES_USER: <example_db_user>
+      # Password for API database
+      POSTGRES_PASSWORD: <example_db_password>
+      # Data directory location
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U <example_db_user> -d base64api"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  # ==========================================================================
+  # ELASTICSEARCH - Search and Analytics Engine
+  # Provides full-text search and document indexing capabilities
+  # ==========================================================================
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
+    ports:
+      # HTTP REST API port
+      - "9200:9200"
+      # Transport port for cluster communication
+      - "9300:9300"
+    networks:
+      - base64ai_network
+    volumes:
+      - base64ai_ultimate_elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      # Single-node deployment (no cluster)
+      - discovery.type=single-node
+      # Enable X-Pack security
+      - xpack.security.enabled=true
+      # Disable HTTP SSL (enable for production with certificates)
+      - xpack.security.http.ssl.enabled=false
+      # Disable transport SSL (enable for production with certificates)
+      - xpack.security.transport.ssl.enabled=false
+      # Password for the elastic superuser
+      - ELASTIC_PASSWORD=<example_elastic_password>
+      # JVM heap size (adjust based on available memory)
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      # Lock memory to prevent swapping
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -f -u elastic:<example_elastic_password> http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ==========================================================================
+  # ELASTICSEARCH-SETUP - Initial Configuration
+  # One-time setup service to configure kibana_system user password
+  # ==========================================================================
+  elasticsearch-setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
+    networks:
+      - base64ai_network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: "no"
+    command: >
+      bash -c '
+        echo "Setting up kibana_system user password..."
+        until curl -s -X POST "http://elasticsearch:9200/_security/user/kibana_system/_password" \
+          -u elastic:<example_elastic_password> \
+          -H "Content-Type: application/json" \
+          -d "{\"password\": \"<example_kibana_password>\"}" | grep -q "{}"; do
+          echo "Waiting for Elasticsearch to be ready..."
+          sleep 5
+        done
+        echo "kibana_system user password set successfully!"
+      '
+
+  # ==========================================================================
+  # KIBANA - Elasticsearch Dashboard and Visualization
+  # Web interface for Elasticsearch data exploration and management
+  # ==========================================================================
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.3
+    ports:
+      # Kibana web interface port
+      - "5601:5601"
+    networks:
+      - base64ai_network
+    environment:
+      # URL of Elasticsearch cluster
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      # Username for Kibana to connect to Elasticsearch
+      - ELASTICSEARCH_USERNAME=kibana_system
+      # Password for kibana_system user (set by elasticsearch-setup)
+      - ELASTICSEARCH_PASSWORD=<example_kibana_password>
+      # Server name for Kibana
+      - SERVER_NAME=kibana
+      # Enable X-Pack security features
+      - XPACK_SECURITY_ENABLED=true
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      elasticsearch-setup:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ==========================================================================
+  # NGINX - Reverse Proxy and Load Balancer
+  # Entry point for all HTTP traffic, routes to appropriate services
+  # ==========================================================================
+  nginx:
+    image: nginx:latest
+    ports:
+      # HTTP port (use 443 for HTTPS with SSL termination)
+      - "80:80"
+    networks:
+      - base64ai_network
+    volumes:
+      # Custom nginx configuration (read-only)
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      integrate:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
