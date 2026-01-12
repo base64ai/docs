@@ -85,7 +85,7 @@ This document provides a comprehensive reference for all environment variables u
 
 Main API server
 
-### Admin {#api-admin}
+### Api Admin
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -100,13 +100,13 @@ Main API server
 | `BASE64AI_STATIC_USER_GIVEN_NAME` | - | First name for static user (on-premises), e.g., "Jane" |
 | `BASE64AI_STATIC_USER_SECRET` | - | Password for static user authentication (on-premises), e.g., "UserP@ssw0rd!" |
 
-### Branding {#api-branding}
+### Api Branding
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `ON_PREM_TITLE` | - | Display title for on-premises deployment, e.g., "ACME Document AI" |
 
-### Database {#api-database}
+### Api Database
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -123,7 +123,7 @@ Main API server
 | `DATABASE_SERVER_USER` | - | Username for SQL database authentication, e.g., "base64_user" |
 | `DISABLE_DATABASE_LOGS` | `false` | Disable database operation logging Values: `true`, `false` |
 
-### Elasticsearch {#api-elasticsearch}
+### Api Elasticsearch
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -136,14 +136,14 @@ Main API server
 | `ELASTICSEARCH_TLS_REJECT_UNAUTHORIZED` | `true` | Whether to reject unauthorized TLS certificates for Elasticsearch (set to "false" for self-signed certs) Values: `true`, `false` |
 | `ELASTICSEARCH_USERNAME` | - | Username for Elasticsearch basic authentication, e.g., "elastic" |
 
-### Email {#api-email}
+### Api Email
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SMTP_SERVER` | - | SMTP server URL for email notifications, e.g., "smtps://user:pass@smtp.example.com:465" |
 | `SMTP_SERVER_DISABLED` | `false` | Disable SMTP server feature Values: `true`, `false` |
 
-### Integrations {#api-integrations}
+### Api Integrations
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -155,7 +155,7 @@ Main API server
 | `INTEGRATE_INTERNAL_HOST_NAME` | - | Internal URL of the n8n integration server, e.g., "http://n8n:5678" |
 | `INTEGRATE_SERVER_DISABLED` | `false` | Disable the integration server feature Values: `true`, `false` |
 
-### LDAP {#api-ldap}
+### Api LDAP
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -184,7 +184,7 @@ Main API server
 | `LDAP_USERNAME_ATTRIBUTE` | `uid` | LDAP attribute for username, e.g., "uid" for OpenLDAP or "sAMAccountName" for Active Directory |
 | `LDAP_USERNAME_FULL_EMAIL` | `false` | Use full email as username in LDAP authentication (required for user_principal_name auth method) Values: `true`, `false` |
 
-### LLM {#api-llm}
+### Api LLM
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -199,7 +199,7 @@ Main API server
 | `EMBEDDING_SERVER_ENABLED` | `false` | Enable embedding server for vector search features Values: `true`, `false` |
 | `LLM_MODEL` | `local` | LLM model provider to use for AI features Values: `local`, `mock` |
 
-### Logging {#api-logging}
+### Api Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -208,7 +208,7 @@ Main API server
 | `LOGGING_LEVEL` | `http` | Logging level for the application Values: `debug`, `http`, `info`, `warn`, `error` |
 | `LOGGING_OUTPUT_PATH` | - | File path for log output, e.g., "/var/log/base64ai/app.log" |
 
-### ML Services {#api-ml-services}
+### Api ML Services
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -228,7 +228,7 @@ Main API server
 | `BASE64AI_TOUCAN_SERVER` | - | URL of the Toucan server, e.g., "http://toucan:3000" |
 | `BASE64AI_VULTURE_SERVER` | - | URL of the Vulture server, e.g., "http://vulture:5000" |
 
-### Processing {#api-processing}
+### Api Processing
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -236,7 +236,7 @@ Main API server
 | `BASE64AI_MAX_PDF_LENGTH` | - | Maximum PDF page count for processing, e.g., "100" or "500" |
 | `MAX_IMAGE_SIZE` | `5000` | Maximum image dimension in pixels, e.g., "5000" or "10000" |
 
-### Security {#api-security}
+### Api Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -247,7 +247,7 @@ Main API server
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "550e8400-e29b-41d4-a716-000005440000" |
 | `TASK_QUEUE_SECRET` | - | Secret for task queue authentication, e.g., "task_queue_secret_key" |
 
-### Server {#api-server}
+### Api Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -260,7 +260,7 @@ Main API server
 | `HTTPS_PROXY` | - | HTTPS proxy URL for outgoing requests, e.g., "http://proxy.example.com:8080" |
 | `PORT` | `3001` | The port number on which the API server listens, e.g., "3001" or "8080" |
 
-### Session {#api-session}
+### Api Session
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -271,7 +271,7 @@ Main API server
 | `BASE64AI_TTL_SESSION` | `604800000` | Session time-to-live in milliseconds, e.g., "604800000" (7 days) or "86400000" (1 day) |
 | `SESSIONSECRET` | - | Secret key for session encryption (use a strong random string), e.g., "my-super-secret-session-key-123" |
 
-### Storage {#api-storage}
+### Api Storage
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -281,7 +281,7 @@ Main API server
 
 Document AI
 
-### Logging {#sparrow-logging}
+### Sparrow Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -289,13 +289,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#sparrow-security}
+### Sparrow Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#sparrow-server}
+### Sparrow Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -306,7 +306,7 @@ Document AI
 
 Document AI
 
-### Logging {#toucan-logging}
+### Toucan Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -314,13 +314,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#toucan-security}
+### Toucan Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#toucan-server}
+### Toucan Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -331,7 +331,7 @@ Document AI
 
 Document AI
 
-### Logging {#tomcat-logging}
+### Tomcat Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -339,13 +339,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#tomcat-security}
+### Tomcat Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#tomcat-server}
+### Tomcat Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -356,7 +356,7 @@ Document AI
 
 Document AI
 
-### Logging {#seagull-logging}
+### Seagull Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -364,13 +364,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#seagull-security}
+### Seagull Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#seagull-server}
+### Seagull Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -381,7 +381,7 @@ Document AI
 
 Document AI
 
-### Logging {#pelican-logging}
+### Pelican Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -389,13 +389,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#pelican-security}
+### Pelican Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#pelican-server}
+### Pelican Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -406,7 +406,7 @@ Document AI
 
 Document AI
 
-### Logging {#kiwi-logging}
+### Kiwi Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -414,13 +414,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#kiwi-security}
+### Kiwi Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#kiwi-server}
+### Kiwi Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -431,7 +431,7 @@ Document AI
 
 Document AI
 
-### Logging {#heron-logging}
+### Heron Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -439,13 +439,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#heron-security}
+### Heron Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#heron-server}
+### Heron Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -456,7 +456,7 @@ Document AI
 
 Document AI
 
-### Logging {#abbot-logging}
+### Abbot Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -464,13 +464,13 @@ Document AI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Security {#abbot-security}
+### Abbot Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#abbot-server}
+### Abbot Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -481,7 +481,7 @@ Document AI
 
 GenAI
 
-### LLM {#merlin-llm}
+### Merlin LLM
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -491,7 +491,7 @@ GenAI
 | `GPU_MODEL_NAME` | `nexus-L` | Model name for GPU inference, e.g., "nexus-L" |
 | `USE_EMBEDDINGS` | `0` | Enable embeddings server alongside chat server Values: `0`, `1` |
 
-### Logging {#merlin-logging}
+### Merlin Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -499,7 +499,7 @@ GenAI
 | `LOGGING_OUTPUT_PATH` | - | Directory path for log output. If not set, logs to stdout. Log file will be named "app.log", e.g., "/var/log" results in "/var/log/app.log" |
 | `SERVICE_NAME` | `ml` | Service name identifier for logging and metrics, e.g., "sparrow", "toucan" |
 
-### Processing {#merlin-processing}
+### Merlin Processing
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -509,14 +509,14 @@ GenAI
 | `NUM_GPU` | `1` | Number of GPUs for tensor-parallel inference, e.g., "1", "2", "4" |
 | `SWAP_SPACE` | `4` | GPU swap space in GB, e.g., "4" |
 
-### Security {#merlin-security}
+### Merlin Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `REQUESTS_CA_BUNDLE_OVERRIDE` | - | Override CA bundle path for HTTP requests, e.g., "/etc/ssl/certs/ca-certificates.crt" |
 | `SUBSCRIPTION_KEY` | - | Subscription key for ML cluster authentication (UUID format), e.g., "8b07dafc-1472-4432-9638-ec3bc39594a5" |
 
-### Server {#merlin-server}
+### Merlin Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -528,7 +528,7 @@ GenAI
 
 Task queue service
 
-### Server {#pheasant-server}
+### Pheasant Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -538,7 +538,7 @@ Task queue service
 
 Document AI
 
-### Logging {#hawk-logging}
+### Hawk Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -546,7 +546,7 @@ Document AI
 | `LOGGING_LEVEL` | `Information` | Logging level for the microservice Values: `Information`, `Debug`, `Warning`, `Error` |
 | `LOGGING_OUTPUT_PATH` | `/var/log` | File path for log output, e.g., "/var/log" |
 
-### Security {#hawk-security}
+### Hawk Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -556,7 +556,7 @@ Document AI
 
 Document AI
 
-### Logging {#vulture-logging}
+### Vulture Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -564,7 +564,7 @@ Document AI
 | `LOGGING_LEVEL` | `Information` | Logging level for the microservice Values: `Information`, `Debug`, `Warning`, `Error` |
 | `LOGGING_OUTPUT_PATH` | `/var/log` | File path for log output, e.g., "/var/log" |
 
-### Security {#vulture-security}
+### Vulture Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -574,7 +574,7 @@ Document AI
 
 Document AI
 
-### Logging {#lark-logging}
+### Lark Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -582,13 +582,13 @@ Document AI
 | `LOGGING_LEVEL` | `Information` | Logging level for the microservice Values: `Information`, `Debug`, `Warning`, `Error` |
 | `LOGGING_OUTPUT_PATH` | `/var/log` | File path for log output, e.g., "/var/log" |
 
-### Security {#lark-security}
+### Lark Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for service authentication |
 
-### Server {#lark-server}
+### Lark Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -598,7 +598,7 @@ Document AI
 
 Document AI
 
-### Logging {#parrot-logging}
+### Parrot Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -606,13 +606,13 @@ Document AI
 | `LOGGING_LEVEL` | `Information` | Logging level for the microservice Values: `Information`, `Debug`, `Warning`, `Error` |
 | `LOGGING_OUTPUT_PATH` | `/var/log` | File path for log output, e.g., "/var/log" |
 
-### Security {#parrot-security}
+### Parrot Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for service authentication |
 
-### Server {#parrot-server}
+### Parrot Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -622,7 +622,7 @@ Document AI
 
 Document AI
 
-### Logging {#crow-logging}
+### Crow Logging
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -630,13 +630,13 @@ Document AI
 | `LOGGING_LEVEL` | `Information` | Logging level for the microservice Values: `Information`, `Debug`, `Warning`, `Error` |
 | `LOGGING_OUTPUT_PATH` | `/var/log` | File path for log output, e.g., "/var/log" |
 
-### Security {#crow-security}
+### Crow Security
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSCRIPTION_KEY` | - | Subscription key for service authentication |
 
-### Server {#crow-server}
+### Crow Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
