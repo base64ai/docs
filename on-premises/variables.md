@@ -78,6 +78,9 @@ This document provides a comprehensive reference for all environment variables u
   - [Logging](#crow-logging)
   - [Security](#crow-security)
   - [Server](#crow-server)
+- [Integrate Service](#integrate-service)
+  - [Integrations](#integrate-integrations)
+  - [Logging](#integrate-logging)
 
 ---
 
@@ -119,6 +122,11 @@ Main API server
 | `DATABASE_SERVER_PASS` | - | Password for SQL database authentication, e.g., "db_secure_password" |
 | `DATABASE_SERVER_PORT` | - | Port number of the SQL database server, e.g., "5432" for PostgreSQL, "1433" for MSSQL |
 | `DATABASE_SERVER_SCHEMA` | - | Schema name for PostgreSQL database, e.g., "base64api" or "public" |
+| `DATABASE_SERVER_SSL_CA` | - | CA certificate for database SSL connections (PEM format string or file path) |
+| `DATABASE_SERVER_SSL_CERT` | - | Client certificate for database SSL connections (PEM format string or file path) |
+| `DATABASE_SERVER_SSL_ENABLED` | `false` | Enable SSL/TLS connections to the database server Values: `true`, `false` |
+| `DATABASE_SERVER_SSL_KEY` | - | Private key for database SSL connections (PEM format string or file path) |
+| `DATABASE_SERVER_SSL_REJECT_UNAUTHORIZED` | `true` | Reject database connections with invalid SSL certificates Values: `true`, `false` |
 | `DATABASE_SERVER_STORAGE_PATH` | - | File path for SQLite database storage, e.g., "/data/base64.db" |
 | `DATABASE_SERVER_USER` | - | Username for SQL database authentication, e.g., "base64_user" |
 | `DISABLE_DATABASE_LOGS` | `false` | Disable database operation logging Values: `true`, `false` |
@@ -234,6 +242,7 @@ Main API server
 |----------|---------|-------------|
 | `BASE64AI_DEFAULT_CULTURE` | `en-US` | Default culture/locale for document processing, e.g., "en-US", "de-DE", "fr-FR" |
 | `BASE64AI_MAX_PDF_LENGTH` | - | Maximum PDF page count for processing, e.g., "100" or "500" |
+| `BASE64AI_MAX_SPLITTER_PDF_LENGTH` | - | Maximum PDF page count for splitter Custom Model processing, e.g., "100" or "500" |
 | `MAX_IMAGE_SIZE` | `5000` | Maximum image dimension in pixels, e.g., "5000" or "10000" |
 
 ### Api Security
@@ -641,4 +650,26 @@ Document AI
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `BASE64AI_VULTURE_SERVER` | - | URL of the Vulture server for image processing, e.g., "http://vulture:5000" |
+
+## Integrate Service
+
+### Integrate Integrations
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BASE64AI_ADMIN_ACCOUNT` | - | Admin account email for the integration server. This must match the admin account configured in the API service, e.g., "admin@example.com" |
+| `BASE64AI_ADMIN_ACCOUNT_PASSWORD` | - | Admin account password for the integration server. This must match the admin password configured in the API service, e.g., "IntegrateP@ss123" |
+| `BASE64AI_INTEGRATE_ADMIN_KEY` | - | Admin API key for the integration server. This key must match the one configured in the API service, e.g., "n8n_admin_key_abc123" |
+
+### Integrate Logging
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `N8N_LOG_CRON_ACTIVE_INTERVAL` | `0` | Interval in minutes to log currently active cron jobs for the integration server. Set to 0 to disable |
+| `N8N_LOG_FILE_COUNT_MAX` | `100` | Maximum number of log files to keep for the integration server |
+| `N8N_LOG_FILE_LOCATION` | - | Log file location for the integration server, e.g., "/var/log/n8n.log". Requires N8N_LOG_OUTPUT set to file |
+| `N8N_LOG_FILE_SIZE_MAX` | `16` | Maximum size of each log file in MB for the integration server |
+| `N8N_LOG_FORMAT` | `text` | Log format for the integration server. "text" prints human readable messages, "json" prints one JSON object per line Values: `text`, `json` |
+| `N8N_LOG_LEVEL` | `info` | Log output level for the integration server Values: `info`, `warn`, `error`, `debug` |
+| `N8N_LOG_OUTPUT` | `console` | Where to output logs for the integration server. Provide multiple values as a comma-separated list Values: `console`, `file` |
 
