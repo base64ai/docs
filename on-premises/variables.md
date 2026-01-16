@@ -59,6 +59,8 @@ This document provides a comprehensive reference for all environment variables u
   - [Security](#merlin-security)
   - [Server](#merlin-server)
 - [Pheasant Service](#pheasant-service)
+  - [Database](#pheasant-database)
+  - [Logging](#pheasant-logging)
   - [Server](#pheasant-server)
 - [Hawk Service](#hawk-service)
   - [Logging](#hawk-logging)
@@ -515,6 +517,7 @@ GenAI
 | `CHAT_MEM_RATIO` | `0.8` | Ratio of GPU memory allocated to chat vs embeddings (0.0-1.0), e.g., "0.8" allocates 80% to chat |
 | `GPU_MEM` | `0.95` | GPU memory utilization fraction (0.0-1.0), e.g., "0.95" uses 95% of GPU memory |
 | `LLM_REQ_HARD_TIMEOUT_SECONDS` | `60` | Hard timeout for LLM requests in seconds, e.g., "60", "120" |
+| `MODEL_DOWNLOAD_DISABLED` | `false` | Disable automatic model downloading on startup Values: `true`, `false` |
 | `NUM_GPU` | `1` | Number of GPUs for tensor-parallel inference, e.g., "1", "2", "4" |
 | `SWAP_SPACE` | `4` | GPU swap space in GB, e.g., "4" |
 
@@ -537,10 +540,30 @@ GenAI
 
 Task queue service
 
+### Pheasant Database
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DATABASE_SERVER_HOST` | `localhost` | PostgreSQL database server hostname for task queue |
+| `DATABASE_SERVER_NAME` | `taskqueue` | PostgreSQL database name for task queue |
+| `DATABASE_SERVER_PASS` | - | PostgreSQL database password for task queue |
+| `DATABASE_SERVER_PORT` | `5432` | PostgreSQL database server port for task queue |
+| `DATABASE_SERVER_SCHEMA` | `pgboss` | PostgreSQL database schema for task queue |
+| `DATABASE_SERVER_USER` | `postgres` | PostgreSQL database username for task queue |
+
+### Pheasant Logging
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LOGGING_FORMAT` | `text` | Log output format Values: `json`, `text` |
+| `LOGGING_LEVEL` | `http` | Logging level for the application Values: `debug`, `http`, `info`, `warn`, `error` |
+| `LOGGING_OUTPUT_PATH` | - | File path for log output, e.g., "/var/log/base64ai/app.log" |
+
 ### Pheasant Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `QUEUE_ADAPTER` | `redis` | Queue adapter type for task queue Values: `postgres`, `redis` |
 | `REDIS_URL` | - | Redis connection URL for task queue, e.g., "redis://redis:6379" |
 
 ## Hawk Service
